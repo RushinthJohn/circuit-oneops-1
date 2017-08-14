@@ -5,12 +5,16 @@
 # The recipe deletes the solrcloud set up on the node marked for deletion.
 #
 
+installation_dir_path = node['installation_dir_path']
+solrmajorversion = node['solrmajorversion']
+solr_version = node['solr_version']
+
 if node['solr_version'].start_with? "4."
 	execute "tomcat#{node['tomcatversion']} stop" do
 	  command "service tomcat#{node['tomcatversion']} stop"
 	  user node['solr']['user']
 	  action :run
-	  only_if { ::File.exists?("/etc/init.d/tomcat#{node['tomcatversion']}")}
+	  only_if { ::File.exist?("/etc/init.d/tomcat#{node['tomcatversion']}")}
 	end
 
 	["/app"].each { |dir|
@@ -29,15 +33,15 @@ if node['solr_version'].start_with? "4."
 	end
 end
 
-if node['solr_version'].start_with? "5." || node['solr_version'].start_with? "6."
-	execute "solr#{node['solrmajorversion']} stop" do
-	  command "service solr#{node['solrmajorversion']} stop"
+if (node['solr_version'].start_with? "5.") || (node['solr_version'].start_with? "6.")
+	execute "solr#{solrmajorversion} stop" do
+	  command "service solr#{solrmajorversion} stop"
 	  user "root"
 	  action :run
-	  only_if { ::File.exists?("/etc/init.d/solr#{solrmajorversion}")}
+	  only_if { ::File.exist?("/etc/init.d/solr#{solrmajorversion}")}
 	end
 
-	[node['installation_dir_path']/solr"#{node['solrmajorversion']}" ,node['data_dir_path'],"/app",node['installation_dir_path']/"solr-#{node['solr_version']}"].each { |dir|
+	["#{installation_dir_path}/solr#{solrmajorversion}", node['data_dir_path'], "/app", "#{installation_dir_path}/solr-#{solr_version}"].each { |dir|
 		Chef::Log.info("deleting #{dir} for user app")
 	  	directory dir do
 	    	owner node['solr']['user']
@@ -48,13 +52,12 @@ if node['solr_version'].start_with? "5." || node['solr_version'].start_with? "6.
 	  	end
 	}
 
-	link "node['installation_dir_path']/solr#{node['solrmajorversion']}" do
+	link "node['installation_dir_path']/solr#{solrmajorversion}" do
 	  link_type :symbolic
 	  action :delete
 	end
 
-	file "/etc/init.d/solr#{node['solrmajorversion']}" do
+	file "/etc/init.d/solr#{solrmajorversion}" do
 		action :delete
 	end
 end
-

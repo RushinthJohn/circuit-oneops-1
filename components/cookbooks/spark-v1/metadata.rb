@@ -225,9 +225,8 @@ attribute 'ganglia_servers',
           :format => {
               :help => 'Specify ganglia servers to point metrics to. Format HOST:PORT',
               :category => '4.Optional Services',
-              :filter => {'all' => {'editable' => 'enable_ganglia:eq:true'}},
+              :filter => {'all' => [{'editable' => 'enable_ganglia:eq:true'}, {'visible' => 'is_client_only:eq:false'}]},
               :order => 6,
-              :filter => {'all' => {'visible' => 'is_client_only:eq:false'} }
           }
 
 # Internal attributes not meant for user configuration
